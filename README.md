@@ -43,14 +43,6 @@
 *   **导航**: Navigation Compose
 *   **构建工具**: Gradle Kotlin DSL (KTS)
 
-## 📸 截图展示 (Screenshots)
-
-| 配置页面 | 结果列表 | 沉浸详情 | 上滑信息 |
-|:---:|:---:|:---:|:---:|
-| <img src="screenshots/config.jpg" width="200"/> | <img src="screenshots/list.jpg" width="200"/> | <img src="screenshots/detail.jpg" width="200"/> | <img src="screenshots/sheet.jpg" width="200"/> |
-
-*(注：请将您的应用截图放入 `screenshots` 文件夹并替换上述文件名)*
-
 ## 🚀 快速开始 (Getting Started)
 
 ### 环境要求
