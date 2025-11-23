@@ -1,23 +1,31 @@
 package com.example.setucompose.api
 
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.util.concurrent.TimeUnit
 
-// 定义 API 接口方法
 interface SetuService {
     @POST("setu/v2")
     suspend fun getSetu(@Body request: SetuRequest): SetuResponse
 }
 
-// 单例模式创建 Retrofit 实例
 object RetrofitInstance {
     private const val BASE_URL = "https://api.lolicon.app/"
+
+    // 【优化】配置超时时间
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
+        .build()
 
     val api: SetuService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(client) // 绑定 Client
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(SetuService::class.java)

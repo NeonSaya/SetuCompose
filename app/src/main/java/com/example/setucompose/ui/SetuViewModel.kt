@@ -14,40 +14,32 @@ import kotlinx.coroutines.launch
 
 class SetuViewModel : ViewModel() {
 
-    // Parameters
-    var r18Mode by mutableIntStateOf(0) // 0:非 R18 (默认)
+    var r18Mode by mutableIntStateOf(0)
     var excludeAI by mutableStateOf(false)
     var tagsInput by mutableStateOf("")
+    var numToFetch by mutableIntStateOf(1) // 默认1张
 
-    // 默认数量 1
-    var numToFetch by mutableIntStateOf(1)
-
-    // State
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var setuList by mutableStateOf<List<SetuData>>(emptyList())
 
-    // 【修复点 1】定义一个 Job 用来追踪网络请求
     private var fetchJob: Job? = null
 
-    // Fetch Data
     fun fetchSetu() {
-        // 【修复点 2】如果上一次请求还没结束，直接取消掉，防止数据覆盖错乱
         fetchJob?.cancel()
-
         fetchJob = viewModelScope.launch {
             try {
-                // 【修复点 3】在请求开始前，立即重置 UI 状态
-                // 这样用户进入结果页时看到的是 Loading 而不是旧图片
                 isLoading = true
                 errorMessage = null
-                setuList = emptyList()
+                setuList = emptyList() // 清空旧数据防止错乱
 
-                val tagList = if (tagsInput.isBlank()) {
-                    emptyList()
-                } else {
-                    listOf(tagsInput)
-                }
+                val cleanTags = tagsInput
+                    .replace("，", "|")
+                    .replace(",", "|")
+                    .replace(" ", "|")
+                    .trim()
+
+                val tagList = if (cleanTags.isBlank()) emptyList() else listOf(cleanTags)
 
                 val req = SetuRequest(
                     r18 = r18Mode,
@@ -64,8 +56,7 @@ class SetuViewModel : ViewModel() {
                     setuList = response.data
                 }
             } catch (e: Exception) {
-                // 如果是手动取消造成的异常，通常忽略，或者显示错误
-                errorMessage = e.message ?: "未知错误"
+                errorMessage = e.message ?: "网络请求失败"
             } finally {
                 isLoading = false
             }

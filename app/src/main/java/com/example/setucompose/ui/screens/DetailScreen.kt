@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,9 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Warning // 用于显示错误
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,8 +41,7 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage // 【必须引入】
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.example.setucompose.ui.SetuViewModel
@@ -59,39 +60,27 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.PartiallyExpanded
-        )
+        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
 
     if (item == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("图片未找到")
-        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("图片未找到") }
         return
     }
 
     val originalUrl = item.urls["original"] ?: ""
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    var retryTrigger by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    // --- 权限与分享逻辑 (保持不变) ---
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, item.title) }
-        } else {
-            Toast.makeText(context, "需要权限保存图片", Toast.LENGTH_SHORT).show()
-        }
+    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, item.title) }
+        else Toast.makeText(context, "需要权限保存", Toast.LENGTH_SHORT).show()
     }
 
     fun saveImage() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context, Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-            if (hasPermission) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, item.title) }
             } else {
                 permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -104,7 +93,7 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
     fun shareImageFile() {
         scope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.Main) { Toast.makeText(context, "获取图片中...", Toast.LENGTH_SHORT).show() }
+                withContext(Dispatchers.Main) { Toast.makeText(context, "处理中...", Toast.LENGTH_SHORT).show() }
                 val loader = ImageLoader(context)
                 val request = ImageRequest.Builder(context).data(originalUrl).allowHardware(false).build()
                 val result = (loader.execute(request) as? SuccessResult)?.drawable
@@ -113,14 +102,20 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
                 if (bitmap != null) {
                     val cachePath = File(context.cacheDir, "images")
                     cachePath.mkdirs()
-                    val file = File(cachePath, "share_image.jpg")
-                    val stream = FileOutputStream(file)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                    stream.close()
+                    // 【优化】文件名包含 PID 和扩展名，防止分享冲突
+                    val ext = if (item.ext.lowercase().contains("png")) "png" else "jpg"
+                    val format = if (ext == "png") Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+                    val file = File(cachePath, "share_${item.pid}.$ext")
+
+                    if (!file.exists()) {
+                        val stream = FileOutputStream(file)
+                        bitmap.compress(format, 100, stream)
+                        stream.close()
+                    }
 
                     val contentUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "image/jpeg"
+                        type = "image/$ext"
                         putExtra(Intent.EXTRA_STREAM, contentUri)
                         putExtra(Intent.EXTRA_TEXT, "Title: ${item.title}")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -133,9 +128,7 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
         }
     }
 
-    val dateString = remember(item.uploadDate) {
-        DateFormat.format("yy-MM-dd HH:mm", Date(item.uploadDate)).toString()
-    }
+    val dateString = remember(item.uploadDate) { DateFormat.format("yy-MM-dd HH:mm", Date(item.uploadDate)).toString() }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -144,11 +137,7 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetContent = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 24.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 24.dp).verticalScroll(rememberScrollState())
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
@@ -166,9 +155,7 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     CompactInfoRow("UID", item.uid.toString(), "PID", item.pid.toString())
                     CompactInfoRow("Size", "${item.width}x${item.height}", "Time", dateString)
-                    if (item.aiType == 2) {
-                        Text("⚠️ AI 生成", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
-                    }
+                    if (item.aiType == 2) Text("⚠️ AI 生成", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("Tags", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -184,15 +171,23 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
                 .background(Color.Black)
                 .clipToBounds()
         ) {
-            // 【修改点】使用 SubcomposeAsyncImage 替换 AsyncImage
-            // 它可以让我们自定义加载中和加载失败的 UI
             SubcomposeAsyncImage(
-                model = originalUrl,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(originalUrl).setParameter("retry_hash", retryTrigger).crossfade(true).build(),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center)
+                    // 【优化】双击放大 + 拖拽 + 面板控制
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                scale = if (scale > 1f) 1f else 2f
+                                offset = Offset.Zero
+                            }
+                        )
+                    }
                     .pointerInput(Unit) {
                         detectTransformGestures { _, pan, zoom, _ ->
                             scale = (scale * zoom).coerceIn(1f, 5f)
@@ -210,73 +205,40 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
                             }
                         }
                     }
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x,
-                        translationY = offset.y
-                    ),
-                // 【新增】加载中显示的组件
+                    .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offset.x, translationY = offset.y),
                 loading = {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.surfaceVariant)
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "原图加载中...",
-                                color = Color.White,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Text("原图加载中...", color = Color.White)
                         }
                     }
                 },
-                // 【新增】加载失败显示的组件
                 error = {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Error",
-                                tint = Color.Red,
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                "图片加载失败",
-                                color = Color.White,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Icon(Icons.Default.Warning, contentDescription = "Error", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(56.dp))
+                            Text("图片加载失败", color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(onClick = { retryTrigger = System.currentTimeMillis() }) {
+                                Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("点击重试")
+                            }
                         }
                     }
                 }
             )
-
+            // 顶部导航
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                    .statusBarsPadding(),
+                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp).statusBarsPadding(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                FilledTonalIconButton(
-                    onClick = { navController.popBackStack() },
-                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
-                    )
-                ) {
+                FilledTonalIconButton(onClick = { navController.popBackStack() }, colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
-
-                FilledTonalIconButton(
-                    onClick = { shareImageFile() },
-                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
-                    )
-                ) {
+                FilledTonalIconButton(onClick = { shareImageFile() }, colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))) {
                     Icon(Icons.Default.Share, contentDescription = "Share")
                 }
             }
@@ -284,7 +246,6 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
     }
 }
 
-// 辅助组件保持不变
 @Composable
 fun CompactInfoRow(l1: String, v1: String, l2: String, v2: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
