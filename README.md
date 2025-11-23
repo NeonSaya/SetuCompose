@@ -1,6 +1,6 @@
-# SetuCompose
+# SetuCompose - 现代化的随机涩图 App
 
-由Gemini v3辅助作业，DEBUG
+由Gemini v3辅助开发，DEBUG
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-blue.svg)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-green.svg)
@@ -68,3 +68,50 @@ git clone https://github.com/your_username/SetuCompose.git
 # 3. 等待 Gradle Sync 完成
 
 # 4. 运行 App (连接真机或模拟器)
+```
+
+## 📦 项目结构
+
+```text
+com.example.setucompose
+├── api             # 网络层 (Retrofit Interface, Data Models)
+├── model           # 应用状态模型
+├── ui              
+│   ├── screens     # Compose 页面 (Config, Result, Detail, About)
+│   ├── theme       # Material3 主题配置
+│   ├── MainActivity.kt
+│   └── SetuViewModel.kt # 核心业务逻辑
+└── util            # 工具类 (ImageSaver)
+```
+
+## 🤝 API 说明
+
+本应用使用了 **Lolicon API (Setu API v2)**。
+*   **API 文档**: [https://docs.api.lolicon.app/#/](https://docs.api.lolicon.app/#/)
+*   **API 地址**: `https://api.lolicon.app/setu/v2`
+
+*请注意：该 API 由第三方提供，本应用仅作为客户端进行数据展示。*
+
+## ⚠️ 免责声明 (Disclaimer)
+
+1.  本应用仅供编程学习和技术交流使用。
+2.  应用内展示的所有图片资源均来源于第三方 API，开发者不对图片内容负责。
+3.  请遵守当地法律法规，合理使用本应用。
+4.  部分内容可能涉及 R18，请确保您已年满 18 岁。
+
+## 📄 License
+
+```
+MIT License
+
+Copyright (c) 2024 [Your Name]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction...
+```
+```
+
+### 使用建议：
+1.  **截图文件夹**：在你的项目根目录下建一个 `screenshots` 文件夹，用模拟器或真机截几张图放进去，重命名为 `config.jpg`, `list.jpg` 等，这样 GitHub 页面会非常好看。
+2.  **上传 GitHub**：把整个项目上传到 GitHub，这份 README 会自动显示在主页。
