@@ -100,7 +100,7 @@ com.example.setucompose
 这个 App 的图片调用都来自于 **Lolicon API (Setu API v2)**。
 
   * **API 文档在这里**：[https://docs.api.lolicon.app/\#/](https://docs.api.lolicon.app/#/)
-  * **API 地址**：[https://api.lolicon.app/\setu/\v2/](https://api.lolicon.app/setu/v2)
+  * **API 地址**：[https://api.lolicon.app/setu/v2/](https://api.lolicon.app/setu/v2)
 
 >  **声明：** 这个 API 是第三方提供的，我只是个把它展示给大家看的**小工具**哦！
 
