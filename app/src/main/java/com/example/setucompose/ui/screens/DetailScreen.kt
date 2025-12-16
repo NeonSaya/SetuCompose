@@ -69,6 +69,7 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
     }
 
     val originalUrl = item.urls["original"] ?: ""
+    val thumbnailUrl = item.urls["thumb"] ?: item.urls["small"] ?: item.urls["regular"]
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     var retryTrigger by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -102,7 +103,6 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
                 if (bitmap != null) {
                     val cachePath = File(context.cacheDir, "images")
                     cachePath.mkdirs()
-                    // 【优化】文件名包含 PID 和扩展名，防止分享冲突
                     val ext = if (item.ext.lowercase().contains("png")) "png" else "jpg"
                     val format = if (ext == "png") Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
                     val file = File(cachePath, "share_${item.pid}.$ext")
@@ -136,31 +136,39 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
         sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetContent = {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 24.dp).verticalScroll(rememberScrollState())
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            // Center and constrain the width of the bottom sheet content for tablets
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 700.dp) // Constrain max width for better readability
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 24.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1)
-                        Text(item.author, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(item.author, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                        }
+                        FilledTonalIconButton(onClick = { saveImage() }, modifier = Modifier.size(40.dp)) {
+                            Icon(Icons.Default.Save, contentDescription = "Save")
+                        }
                     }
-                    FilledTonalIconButton(onClick = { saveImage() }, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.Default.Save, contentDescription = "Save")
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        CompactInfoRow("UID", item.uid.toString(), "PID", item.pid.toString())
+                        CompactInfoRow("Size", "${item.width}x${item.height}", "Time", dateString)
+                        if (item.aiType == 2) Text("⚠️ AI 生成", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Tags", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(item.tags.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, lineHeight = 18.sp)
                 }
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CompactInfoRow("UID", item.uid.toString(), "PID", item.pid.toString())
-                    CompactInfoRow("Size", "${item.width}x${item.height}", "Time", dateString)
-                    if (item.aiType == 2) Text("⚠️ AI 生成", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Tags", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(item.tags.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, lineHeight = 18.sp)
             }
         }
     ) { innerPadding ->
@@ -173,13 +181,19 @@ fun DetailScreen(navController: NavController, viewModel: SetuViewModel, index: 
         ) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(originalUrl).setParameter("retry_hash", retryTrigger).crossfade(true).build(),
+                    .data(originalUrl)
+                    .setParameter("retry_hash", retryTrigger)
+                    .crossfade(true)
+                    // --- Optimizations --- //
+                    .placeholderMemoryCacheKey(thumbnailUrl) // Instantly show the thumbnail from cache
+                    .allowRgb565(true) // Use 50% less memory for decoding
+                    // --------------------- //
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center)
-                    // 【优化】双击放大 + 拖拽 + 面板控制
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = {

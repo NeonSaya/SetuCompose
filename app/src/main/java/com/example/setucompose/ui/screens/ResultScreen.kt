@@ -1,5 +1,7 @@
 package com.example.setucompose.ui.screens
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,6 +9,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -27,7 +31,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.setucompose.ui.SetuViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
     val pullRefreshState = rememberPullToRefreshState()
@@ -39,7 +43,18 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
         if (!viewModel.isLoading) pullRefreshState.endRefresh()
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("随机结果") }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("随机结果") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
         Box(
             modifier = Modifier
                 .padding(padding)
@@ -59,16 +74,16 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                    columns = GridCells.Adaptive(minSize = 180.dp),
                     contentPadding = PaddingValues(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 【优化】添加 key 提高性能
                     itemsIndexed(viewModel.setuList, key = { _, item -> item.pid }) { index, item ->
                         Card(
                             modifier = Modifier
+                                .animateItemPlacement(tween(durationMillis = 300))
                                 .fillMaxWidth()
                                 .aspectRatio(0.7f)
                                 .clickable { navController.navigate("detail/$index") },

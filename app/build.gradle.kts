@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.setucompose"
         minSdk = 21
         targetSdk = 34
-        versionCode = 2 // Incremented for the new release
-        versionName = "1.1" // Updated for the new release
+        versionCode = 3 // Incremented for the new release
+        versionName = "1.2" // Updated for the new release
 
         vectorDrawables {
             useSupportLibrary = true
@@ -71,4 +71,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // 主题切换
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

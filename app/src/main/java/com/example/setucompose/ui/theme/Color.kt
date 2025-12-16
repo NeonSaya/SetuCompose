@@ -2,10 +2,24 @@ package com.example.setucompose.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// A curated set of colors for the app's theme.
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Light Theme Colors
+val LightPrimary = Color(0xFF00639C)
+val LightOnPrimary = Color.White
+val LightPrimaryContainer = Color(0xC8D8E6F8)
+val LightOnPrimaryContainer = Color(0xFF001D33)
+val LightSecondary = Color(0xFFB5005E)
+val LightOnSecondary = Color.White
+val LightSecondaryContainer = Color(0xFFFFD9E2)
+val LightOnSecondaryContainer = Color(0xFF3E001B)
+
+// Dark Theme Colors
+val DarkPrimary = Color(0xFF5DB3FF)
+val DarkOnPrimary = Color(0xFF003353)
+val DarkPrimaryContainer = Color(0xFF004A75)
+val DarkOnPrimaryContainer = Color(0xFFD8E6F8)
+val DarkSecondary = Color(0xFFFFB1C8)
+val DarkOnSecondary = Color(0xFF640030)
+val DarkSecondaryContainer = Color(0xFF8D1348)
+val DarkOnSecondaryContainer = Color(0xFFFFD9E2)
