@@ -30,6 +30,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.setucompose.ui.SetuViewModel
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -55,7 +58,7 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
             )
         }
     ) { padding ->
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
@@ -73,11 +76,15 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
                     Button(onClick = { viewModel.fetchSetu() }) { Text("重试") }
                 }
             } else {
+                // Use 600dp as the breakpoint between phone and tablet.
+                val isTablet = this.maxWidth >= 600.dp
+                val gridPadding = 8.dp
+
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 180.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    columns = if (isTablet) GridCells.Adaptive(minSize = 180.dp) else GridCells.Fixed(2),
+                    contentPadding = PaddingValues(gridPadding),
+                    horizontalArrangement = Arrangement.spacedBy(gridPadding),
+                    verticalArrangement = Arrangement.spacedBy(gridPadding),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     itemsIndexed(viewModel.setuList, key = { _, item -> item.pid }) { index, item ->
@@ -86,7 +93,11 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
                                 .animateItemPlacement(tween(durationMillis = 300))
                                 .fillMaxWidth()
                                 .aspectRatio(0.7f)
-                                .clickable { navController.navigate("detail/$index") },
+                                .clickable {
+                                    val itemJson = Gson().toJson(item)
+                                    val encodedJson = URLEncoder.encode(itemJson, StandardCharsets.UTF_8.name())
+                                    navController.navigate("detail/$encodedJson")
+                                },
                             elevation = CardDefaults.cardElevation(4.dp),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -99,7 +110,6 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
-                                // 序号
                                 Box(
                                     modifier = Modifier
                                         .padding(6.dp)
@@ -109,7 +119,6 @@ fun ResultScreen(navController: NavController, viewModel: SetuViewModel) {
                                 ) {
                                     Text("${index + 1}", color = Color.White, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                                 }
-                                // 标题
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.BottomCenter)

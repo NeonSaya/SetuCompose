@@ -1,5 +1,6 @@
 package com.example.setucompose.ui
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,7 +11,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,11 +24,35 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.setucompose.api.SetuData
 import com.example.setucompose.ui.screens.AboutScreen
 import com.example.setucompose.ui.screens.ConfigScreen
 import com.example.setucompose.ui.screens.DetailScreen
+import com.example.setucompose.ui.screens.FavoritesScreen
 import com.example.setucompose.ui.screens.ResultScreen
 import com.example.setucompose.ui.theme.AppTheme
+import com.google.gson.Gson
+
+// A custom NavType to handle passing complex data objects.
+class SetuDataNavType : NavType<SetuData>(isNullableAllowed = false) {
+    override fun get(bundle: Bundle, key: String): SetuData? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundle.getParcelable(key, SetuData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            bundle.getParcelable(key)
+        }
+    }
+
+    override fun parseValue(value: String): SetuData {
+        return Gson().fromJson(value, SetuData::class.java)
+    }
+
+    override fun put(bundle: Bundle, key: String, value: SetuData) {
+        bundle.putParcelable(key, value)
+    }
+}
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,30 +85,33 @@ class MainActivity : ComponentActivity() {
                                 ConfigScreen(
                                     navController = navController,
                                     setuViewModel = setuViewModel,
-                                    settingsViewModel = settingsViewModel, // Pass settings ViewModel
+                                    settingsViewModel = settingsViewModel,
                                     modifier = Modifier.widthIn(max = 600.dp)
                                 )
                             }
                         }
                         composable("results") { ResultScreen(navController, setuViewModel) }
+
                         composable(
-                            route = "detail/{index}",
-                            arguments = listOf(navArgument("index") { type = NavType.IntType })
-                        ) { entry ->
-                            DetailScreen(navController, setuViewModel, entry.arguments?.getInt("index") ?: 0)
+                            route = "detail/{setuData}",
+                            arguments = listOf(navArgument("setuData") { type = SetuDataNavType() })
+                        ) { backStackEntry ->
+                            val setuData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                backStackEntry.arguments?.getParcelable("setuData", SetuData::class.java)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                backStackEntry.arguments?.getParcelable("setuData")
+                            }
+                            if (setuData != null) {
+                                DetailScreen(navController, setuData)
+                            }
                         }
+
                         composable("about") { AboutScreen(navController) }
+                        composable("favorites") { FavoritesScreen(navController) }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Surface(modifier: Modifier, content: @Composable () -> Unit) {
-    // This is a simplified Surface. In a real app, you might want more customization.
-    Box(modifier = modifier) {
-        content()
     }
 }

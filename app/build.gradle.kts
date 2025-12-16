@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp") // Apply KSP plugin
+    id("kotlin-parcelize")
 }
 
 android {
@@ -11,8 +13,8 @@ android {
         applicationId = "com.example.setucompose"
         minSdk = 21
         targetSdk = 34
-        versionCode = 3 // Incremented for the new release
-        versionName = "1.2" // Updated for the new release
+        versionCode = 4 // Incremented for the new release
+        versionName = "2.0" // Updated for the new release
 
         vectorDrawables {
             useSupportLibrary = true
@@ -39,7 +41,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -74,4 +76,10 @@ dependencies {
 
     // 主题切换
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Room Database for Favorites
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
 }

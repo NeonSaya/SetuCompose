@@ -1,6 +1,8 @@
 package com.example.setucompose.api
 
+import android.os.Parcelable
 import androidx.annotation.Keep
+import kotlinx.parcelize.Parcelize
 
 @Keep
 data class SetuResponse(
@@ -9,6 +11,7 @@ data class SetuResponse(
 )
 
 @Keep
+@Parcelize
 data class SetuData(
     val pid: Long,
     val p: Int,
@@ -23,7 +26,7 @@ data class SetuData(
     val aiType: Int,
     val uploadDate: Long,
     val urls: Map<String, String>
-)
+) : Parcelable
 
 @Keep
 data class SetuRequest(
