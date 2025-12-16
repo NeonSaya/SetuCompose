@@ -6,9 +6,13 @@
 -keepattributes Signature,InnerClasses,KotlinMetaData,RuntimeVisibleAnnotations,AnnotationDefault
 
 # 2. App-specific Rules: Protect your API models and services
-# This keeps everything in your `api` package safe.
--keep,includedescriptorclasses public class com.example.setucompose.api.** { *; }
--keep,includedescriptorclasses public interface com.example.setucompose.api.** { *; }
+# This keeps everything in your `data` package safe.
+-keep,includedescriptorclasses public class com.neonsaya.setucompose.data.** { *; }
+-keep,includedescriptorclasses public interface com.neonsaya.setucompose.data.** { *; }
+
+# Keep the generic type information for all TypeToken subclasses.
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
 
 # 3. Library Rules: Protect the libraries themselves
 # This prevents R8 from breaking the internal workings of Retrofit, Gson, and OkHttp.
