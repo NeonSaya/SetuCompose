@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.screens
+package com.neonsaya.setucompose.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

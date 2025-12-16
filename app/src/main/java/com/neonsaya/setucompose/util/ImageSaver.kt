@@ -1,4 +1,4 @@
-package com.example.setucompose.util
+package com.neonsaya.setucompose.util
 
 import android.content.ContentValues
 import android.content.Context

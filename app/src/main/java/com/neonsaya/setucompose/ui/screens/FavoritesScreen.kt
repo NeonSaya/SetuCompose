@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.screens
+package com.neonsaya.setucompose.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.setucompose.ui.FavoriteViewModel
+import com.neonsaya.setucompose.ui.FavoriteViewModel
 import com.google.gson.Gson
 import java.io.File
 import java.net.URLEncoder

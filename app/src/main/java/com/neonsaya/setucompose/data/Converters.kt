@@ -1,4 +1,4 @@
-package com.example.setucompose.data
+package com.neonsaya.setucompose.data
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson

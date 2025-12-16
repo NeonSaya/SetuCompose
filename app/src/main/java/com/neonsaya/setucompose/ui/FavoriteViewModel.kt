@@ -1,4 +1,4 @@
-package com.example.setucompose.ui
+package com.neonsaya.setucompose.ui
 
 import android.app.Application
 import android.graphics.Bitmap
@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import coil.Coil
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import com.example.setucompose.api.SetuData
-import com.example.setucompose.data.AppDatabase
-import com.example.setucompose.data.Favorite
+import com.neonsaya.setucompose.api.SetuData
+import com.neonsaya.setucompose.data.AppDatabase
+import com.neonsaya.setucompose.data.Favorite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first

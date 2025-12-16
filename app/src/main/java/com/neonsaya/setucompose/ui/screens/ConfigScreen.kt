@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.screens
+package com.neonsaya.setucompose.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,9 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.setucompose.ui.SetuViewModel
-import com.example.setucompose.ui.SettingsViewModel
-import com.example.setucompose.ui.ThemeSetting
+import com.neonsaya.setucompose.ui.SetuViewModel
+import com.neonsaya.setucompose.ui.SettingsViewModel
+import com.neonsaya.setucompose.ui.ThemeSetting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.screens
+package com.neonsaya.setucompose.ui.screens
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.setucompose.ui.SetuViewModel
+import com.neonsaya.setucompose.ui.SetuViewModel
 import com.google.gson.Gson
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

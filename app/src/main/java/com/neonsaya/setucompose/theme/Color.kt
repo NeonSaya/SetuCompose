@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.theme
+package com.neonsaya.setucompose.theme
 
 import androidx.compose.ui.graphics.Color
 

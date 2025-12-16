@@ -1,6 +1,6 @@
-package com.example.setucompose.api
+package com.neonsaya.setucompose.api
 
-import com.example.setucompose.BuildConfig
+import com.neonsaya.setucompose.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

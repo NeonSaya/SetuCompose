@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.setucompose"
+    namespace = "com.neonsaya.setucompose"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.setucompose"
+        applicationId = "com.neonsaya.setucompose"
         minSdk = 21
         targetSdk = 34
         versionCode = 4 // Incremented for the new release

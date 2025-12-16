@@ -1,4 +1,4 @@
-package com.example.setucompose.ui
+package com.neonsaya.setucompose.ui
 
 import android.content.Context
 import androidx.datastore.core.DataStore

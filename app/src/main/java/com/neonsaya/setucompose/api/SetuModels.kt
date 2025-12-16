@@ -1,4 +1,4 @@
-package com.example.setucompose.api
+package com.neonsaya.setucompose.api
 
 import android.os.Parcelable
 import androidx.annotation.Keep

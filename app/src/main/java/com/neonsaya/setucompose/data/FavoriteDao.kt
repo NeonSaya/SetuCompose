@@ -1,4 +1,4 @@
-package com.example.setucompose.data
+package com.neonsaya.setucompose.data
 
 import androidx.room.Dao
 import androidx.room.Delete

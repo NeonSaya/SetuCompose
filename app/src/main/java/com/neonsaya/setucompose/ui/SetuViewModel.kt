@@ -1,4 +1,4 @@
-package com.example.setucompose.ui
+package com.neonsaya.setucompose.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.setucompose.api.RetrofitInstance
-import com.example.setucompose.api.SetuData
-import com.example.setucompose.api.SetuRequest
+import com.neonsaya.setucompose.api.RetrofitInstance
+import com.neonsaya.setucompose.api.SetuData
+import com.neonsaya.setucompose.api.SetuRequest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.theme
+package com.neonsaya.setucompose.theme
 
 import android.app.Activity
 import android.os.Build

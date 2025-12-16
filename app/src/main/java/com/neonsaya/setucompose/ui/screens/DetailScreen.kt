@@ -1,4 +1,4 @@
-package com.example.setucompose.ui.screens
+package com.neonsaya.setucompose.ui.screens
 
 import android.Manifest
 import android.content.Intent
@@ -59,9 +59,9 @@ import coil.Coil
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import com.example.setucompose.api.SetuData
-import com.example.setucompose.ui.FavoriteViewModel
-import com.example.setucompose.util.ImageSaver
+import com.neonsaya.setucompose.api.SetuData
+import com.neonsaya.setucompose.ui.FavoriteViewModel
+import com.neonsaya.setucompose.util.ImageSaver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

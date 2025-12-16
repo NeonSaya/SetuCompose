@@ -1,4 +1,4 @@
-package com.example.setucompose.ui
+package com.neonsaya.setucompose.ui
 
 import android.os.Build
 import android.os.Bundle
@@ -24,14 +24,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.setucompose.api.SetuData
-import com.example.setucompose.ui.screens.AboutScreen
-import com.example.setucompose.ui.screens.ConfigScreen
-import com.example.setucompose.ui.screens.DetailScreen
-import com.example.setucompose.ui.screens.FavoritesScreen
-import com.example.setucompose.ui.screens.ResultScreen
-import com.example.setucompose.ui.theme.AppTheme
+import com.neonsaya.setucompose.api.SetuData
+import com.neonsaya.setucompose.ui.screens.AboutScreen
+import com.neonsaya.setucompose.ui.screens.ConfigScreen
+import com.neonsaya.setucompose.ui.screens.DetailScreen
+import com.neonsaya.setucompose.ui.screens.FavoritesScreen
+import com.neonsaya.setucompose.ui.screens.ResultScreen
 import com.google.gson.Gson
+import com.neonsaya.setucompose.theme.AppTheme
 
 // A custom NavType to handle passing complex data objects.
 class SetuDataNavType : NavType<SetuData>(isNullableAllowed = false) {
