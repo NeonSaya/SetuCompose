@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.setucompose"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2 // Incremented for the new release
+        versionName = "1.1" // Updated for the new release
 
         vectorDrawables {
             useSupportLibrary = true
