@@ -20,4 +20,16 @@ interface FavoriteDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE pid = :pid)")
     fun isFavorite(pid: Long): Flow<Boolean>
+
+    @Query("SELECT * FROM favorites WHERE pid IN (:pids)")
+    suspend fun getFavoritesByPids(pids: List<Long>): List<Favorite>
+
+    @Query("SELECT * FROM favorites WHERE pid = :pid")
+    suspend fun getFavoriteByPid(pid: Long): Favorite?
+
+    @Query("DELETE FROM favorites WHERE pid = :pid")
+    suspend fun deleteByPid(pid: Long)
+
+    @Query("DELETE FROM favorites WHERE pid IN (:pids)")
+    suspend fun deleteByPids(pids: List<Long>)
 }

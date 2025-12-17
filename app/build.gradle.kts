@@ -13,8 +13,8 @@ android {
         applicationId = "com.neonsaya.setucompose"
         minSdk = 21
         targetSdk = 34
-        versionCode = 5 // Incremented for the new release
-        versionName = "2.0.1" // Updated for the new release
+        versionCode = 6 // Incremented for the new release
+        versionName = "2.1.0" // Updated for the new release
 
         vectorDrawables {
             useSupportLibrary = true

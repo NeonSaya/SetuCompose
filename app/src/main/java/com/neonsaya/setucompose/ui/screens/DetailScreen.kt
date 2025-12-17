@@ -89,19 +89,19 @@ fun DetailScreen(navController: NavController, setuData: SetuData) {
     var retryTrigger by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
+        if (isGranted) scope.launch(Dispatchers.IO) { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
         else Toast.makeText(context, "需要权限保存", Toast.LENGTH_SHORT).show()
     }
 
     fun saveImage() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
+                scope.launch(Dispatchers.IO) { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
             } else {
                 permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         } else {
-            scope.launch { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
+            scope.launch(Dispatchers.IO) { ImageSaver.saveImageToGallery(context, originalUrl, setuData.title) }
         }
     }
 
@@ -109,9 +109,8 @@ fun DetailScreen(navController: NavController, setuData: SetuData) {
         scope.launch(Dispatchers.IO) {
             try {
                 withContext(Dispatchers.Main) { Toast.makeText(context, "处理中...", Toast.LENGTH_SHORT).show() }
-                val imageLoader = Coil.imageLoader(context)
                 val request = ImageRequest.Builder(context).data(originalUrl).allowHardware(false).build()
-                val result = (imageLoader.execute(request) as? SuccessResult)?.drawable
+                val result = (Coil.imageLoader(context).execute(request) as? SuccessResult)?.drawable
                 val bitmap = result?.toBitmap()
 
                 if (bitmap != null) {
@@ -202,7 +201,7 @@ fun DetailScreen(navController: NavController, setuData: SetuData) {
                     Text(setuData.tags.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, lineHeight = 18.sp)
                 }
             }
-        }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
